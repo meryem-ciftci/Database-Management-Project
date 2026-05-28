@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/meryem-ciftci/Database-Management-Project#readme",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "mysql2": "^3.22.4",
     "xlsx": "^0.18.5"
   }
