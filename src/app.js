@@ -1,14 +1,13 @@
 //will change later when wrote backend and finished the tables
 
 import {Validator} from './validation.js';
-import { dbConnection } from './dbConnection.js';
 import { MemberService } from './memberService.js';
 
 const form = document.getElementById('form');
 const table = document.getElementById('table');
 const error = document.getElementById('error');
 
-function render(){
+async function render(){
     tableBody.innerHTML = '';
     const members = MemberService.getMembers();
 
@@ -42,7 +41,7 @@ form.addEventListener('submit', (e)=> {
     if (!Validator.isValidEmail(email)) {return;};
     if (!Validator.isValidPhone(phone)) {return;};
 
-    MemberService.addMember({name, email, phone});
+    await MemberService.addMember({name, email, phone});
     form.reset();
     render();
 });

@@ -42,10 +42,19 @@ CREATE TABLE Copy (
     OnLoan INT DEFAULT 0,
     Total INT DEFAULT 1,
     FOREIGN KEY (ISBN) REFERENCES Book(ISBN) ON DELETE CASCADE
-<<<<<<< HEAD
 );
-=======
-);
+
+CREATE TABLE Members(
+        MemberID VARCHAR(50) PRIMARY KEY,
+        FName VARCHAR(50) NOT NULL,
+        LName VARCHAR(50) NOT NULL,
+        PhoneNumber VARCHAR(50) NOT NULL,
+        MailAddress VARCHAR(50) NOT NULL,
+        Region VARCHAR(50),
+        PostalCode VARCHAR(50),
+        ReadBooks INT,
+        BorrowedBooks INT
+)
 
 CREATE TABLE Loan (
     LoanID VARCHAR(20) PRIMARY KEY,
@@ -79,4 +88,3 @@ BEGIN
 END ++
 
 DELIMITER ;
->>>>>>> 130dd048fdd44fa4c4020a52fea3c1662c136846
