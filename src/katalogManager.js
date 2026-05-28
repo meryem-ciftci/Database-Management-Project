@@ -1,5 +1,6 @@
 const xlsx = require('xlsx');
 const mysql = require('mysql2/promise');
+require('dotenv').config();
 
 async function importData() {
     try {
@@ -7,7 +8,7 @@ async function importData() {
         const db = await mysql.createConnection({
             host: 'localhost',
             user: 'root',
-            password: process.env.DB_PASSWORD, // Kendi şifreni yazmayı unutma!
+            password: process.env.DB_PASSWORD, //Herkesin kendi şifresi
             database: 'LibraryDB'
         });
         console.log('Successfully connected to the database!');
