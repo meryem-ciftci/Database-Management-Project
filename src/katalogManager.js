@@ -1,6 +1,6 @@
+require('dotenv').config(); // En üste aldık
 const xlsx = require('xlsx');
 const mysql = require('mysql2/promise');
-require('dotenv').config();
 
 async function importData() {
     try {
@@ -8,7 +8,7 @@ async function importData() {
         const db = await mysql.createConnection({
             host: 'localhost',
             user: 'root',
-            password: process.env.DB_PASSWORD, //Herkesin kendi şifresi
+            password: process.env.DB_PASSWORD, // Herkesin kendi şifresi
             database: 'LibraryDB'
         });
         console.log('Successfully connected to the database!');
@@ -23,7 +23,6 @@ async function importData() {
         for (const row of excelData) {
             
             // A. INSERT AUTHOR
-            // We assume Excel has 'AuthorFName' and 'AuthorLName' columns
             const [authorResult] = await db.execute(
                 `INSERT INTO Author (FName, LName) VALUES (?, ?)`,
                 [row.AuthorFName, row.AuthorLName]
@@ -31,7 +30,6 @@ async function importData() {
             const authorId = authorResult.insertId;
 
             // B. INSERT BOOK
-            // We assume Excel has 'ISBN', 'BookTitle', 'Category' columns
             await db.execute(
                 `INSERT IGNORE INTO Book (ISBN, Title, Category, Stock, OnLoan) VALUES (?, ?, ?, ?, ?)`,
                 [row.ISBN, row.BookTitle, row.Category, 1, 0]
@@ -44,7 +42,6 @@ async function importData() {
             );
 
             // D. INSERT COPY
-            // We assume Excel has 'AccessionNumber', 'Year', 'Publisher', 'Pages' columns
             await db.execute(
                 `INSERT INTO Copy (AccessionNumber, ISBN, YearOfPublication, Publisher, NumberOfPages, Stock, OnLoan, Total) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -60,7 +57,62 @@ async function importData() {
     } catch (error) {
         console.error('An error occurred:', error);
     }
+} // <--- DİKKAT: importData fonksiyonu tam olarak burada kapanıyor!
+
+
+// --- WEB ARAYÜZÜ (UI) İÇİN ÇAĞRILACAK FONKSİYONLAR ---
+
+// 1. Tüm Kitapları Listeleme Fonksiyonu
+async function tumKitaplariGetir() {
+    try {
+        const db = await mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: process.env.DB_PASSWORD,
+            database: 'LibraryDB'
+        });
+
+        const [kitaplar] = await db.execute('SELECT * FROM Book');
+        await db.end();
+        return kitaplar; // Arayüze kitapları gönder
+
+    } catch (hata) {
+        console.error('Kitaplar getirilirken hata:', hata);
+        throw hata;
+    }
 }
 
-// Run the function
-importData();
+// 2. Yeni Kitap Ekleme Fonksiyonu
+async function yeniKitapEkle(isbn, title, category) {
+    try {
+        const db = await mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: process.env.DB_PASSWORD,
+            database: 'LibraryDB'
+        });
+
+        // Yeni kitabı Book tablosuna ekler (stok varsayılan 1, OnLoan 0)
+        await db.execute(
+            `INSERT INTO Book (ISBN, Title, Category, Stock, OnLoan) VALUES (?, ?, ?, ?, ?)`,
+            [isbn, title, category, 1, 0]
+        );
+        
+        await db.end();
+        console.log(`${title} isimli kitap başarıyla eklendi!`);
+
+    } catch (hata) {
+        console.error('Kitap eklenirken hata:', hata);
+        throw hata;
+    }
+}
+
+// (İsteğe bağlı) Eğer terminalden sadece dosyayı test etmek istersen yorum satırını kaldırabilirsin
+// importData(); 
+
+// 3. Yazdığımız fonksiyonları Meryem'in server.js'i için dışa aktarıyoruz (En altta ve bağımsız)
+module.exports = {
+    importData,          // Excel'den veri çeken fonksiyonumuz
+    tumKitaplariGetir,   // Listeleme fonksiyonumuz
+    yeniKitapEkle        // Ekleme fonksiyonumuz
+};
