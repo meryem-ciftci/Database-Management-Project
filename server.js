@@ -139,6 +139,17 @@ app.post('/api/authors', async (req, res) => {
   }
 });
 
+app.delete('/api/authors/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    await katalogManager.deleteAuthor(id);
+    res.json({ success: true, message: "Yazar başarıyla silindi!" });
+  } catch (err) {
+    console.log("Silme hatası:", err);
+    res.status(500).send("Yazar silinirken hata: " + err.message);
+  }
+});
+
 app.post('/api/books/:isbn/authors', async (req, res) => {
   const isbn = req.params.isbn;
   const { authorId } = req.body;
