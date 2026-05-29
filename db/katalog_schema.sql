@@ -25,12 +25,10 @@ CREATE TABLE Author (
 CREATE TABLE Book (
     ISBN VARCHAR(20) PRIMARY KEY,
     Title VARCHAR(255) NOT NULL,
-    Category VARCHAR(100),
+    Genre VARCHAR(100),
     Author VARCHAR(255),
     Stock INT DEFAULT 0,
     OnLoan INT DEFAULT 0
-    genre VARCHAR(50),
-    author VARCHAR(50)
 );
 
 -- Kitap ve Yazar Çoğa-Çok (Many-to-Many) İlişki Tablosu
@@ -180,19 +178,17 @@ END //
 
 DELIMITER ;
 
--- A virtual table that combines Books and Authors
+-- A virtual table for Books
 DROP VIEW IF EXISTS BookDetailsView;
 
 CREATE VIEW BookDetailsView AS
 SELECT 
-    b.ISBN, 
-    b.Title AS Book_Title, 
-    b.Category AS Category, 
-    CONCAT(a.FName, ' ', a.LName) AS Author_Name,
-    b.Stock AS Stock_Status
-FROM Book b
-JOIN Book_Author ba ON b.ISBN = ba.ISBN
-JOIN Author a ON ba.AuthorID = a.AuthorID;
+    ISBN, 
+    Title AS Book_Title, 
+    Genre AS Genre, 
+    Author AS Author_Name,
+    Stock AS Stock_Status
+FROM Book;
 
 DELIMITER //
 -- Trigger to increase Book stock when a new Copy is added
