@@ -50,6 +50,14 @@ searchForm.addEventListener('submit', async function(event) {
         const ISBN = ((bookList[bookList.length-1].ISBN).slice(0,5) + (Number.parseInt((bookList[bookList.length-1].ISBN.slice(5,21)))+1));
         await serverFonksiyonlari.addNewBook(ISBN, titleInput.value, categoryInput.value);  
     }
+    // Listeyi güncelle (Senin kısmın)
+    bookList = await serverFonksiyonlari.getAllBooks();
+    
+    // Ekrana yazdır (Damla'nın kısmının hatasız hali)
+    let inner = document.getElementById("right").innerHTML || "";
+    let add = (titleInput.value.trim().padEnd(30, " ")) + (categoryInput.value.trim().padEnd(50, " "));
+    inner = inner + "<h4>" + add + "</h4>";
+    document.getElementById("right").innerHTML = inner;
 });
 
 
