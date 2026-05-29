@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Yönetimi - Yazar İşlemleri</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        input[type="text"] { padding: 8px; width: 200px; }
+        button { padding: 8px 15px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Yazar Yönetimi</h2>
+
+    <div class="form-group">
+        <input type="text" id="fname" placeholder="Yazarın Adı" required>
+        <input type="text" id="lname" placeholder="Yazarın Soyadı" required>
+        <button onclick="yazarEkle()">Yazar Ekle</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Yazar ID</th>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="yazarTablosu">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // Arka plan sunucusunun adresi (Dosyayı localhost'tan açtığımız için direkt böyle yazabiliriz)
+    const API_URL = '/api/authors'; 
+
+    // Sayfa yüklendiğinde yazarları getir
+    document.addEventListener('DOMContentLoaded', yazarlariGetir);
+
+    // 1. Veritabanından Yazarları Çekme (GET)
+    async function yazarlariGetir() {
+        try {
+            const response = await fetch(API_URL);
+            
+            if (!response.ok) {
+                console.error("Sunucu Hatası:", await response.text());
+                return;
+            }
+
+            const yazarlar = await response.json();
+            const tablo = document.getElementById('yazarTablosu');
+            tablo.innerHTML = ''; // Tabloyu temizle
+
+            yazarlar.forEach(yazar => {
+                tablo.innerHTML += `
+                    <tr>
+                        <td>${yazar.AuthorID}</td>
+                        <td>${yazar.FName}</td>
+                        <td>${yazar.LName}</td>
+                        <td>
+                            <button onclick="yazarSil(${yazar.AuthorID})">Sil</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error('Yazarlar yüklenirken hata:', error);
+        }
+    }
+
+    // 2. Yeni Yazar Ekleme (POST)
+    async function yazarEkle() {
+        const fname = document.getElementById('fname').value;
+        const lname = document.getElementById('lname').value;
+
+        if (!fname || !lname) {
+            alert('Lütfen yazarın adını ve soyadını girin!');
+            return;
+        }
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fName: fname, lName: lname }) 
+            });
+
+            if (response.ok) {
+                alert('Yazar başarıyla eklendi!');
+                document.getElementById('fname').value = '';
+                document.getElementById('lname').value = '';
+                yazarlariGetir(); // Tabloyu anında güncelle
+            } else {
+                const errorText = await response.text();
+                alert('Yazar eklenirken bir hata oluştu. Konsola bak.');
+                console.error("Backend Hatası:", errorText);
+            }
+        } catch (error) {
+            console.error('Bağlantı hatası:', error);
+        }
+    }
+
+    // 3. Yazar Silme (DELETE)
+    async function yazarSil(id) {
+        if(confirm('Bu yazarı silmek istediğinize emin misiniz?')) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if(response.ok) {
+                    alert('Yazar başarıyla silindi.');
+                    yazarlariGetir(); // Tabloyu anında güncelle
+                } else {
+                    console.error("Silme Hatası:", await response.text());
+                }
+            } catch (error) {
+                console.error('Bağlantı hatası:', error);
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
