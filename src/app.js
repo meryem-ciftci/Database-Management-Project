@@ -4,7 +4,7 @@ import {Validator} from './validation.js';
 import { MemberService } from './memberService.js';
 
 const form = document.getElementById('form');
-const table = document.getElementById('table');
+const tableBody = document.getElementById('tableBody');
 const error = document.getElementById('error');
 
 async function render(){
@@ -23,7 +23,7 @@ async function render(){
                 <button class="btn-delete" data-id="${member.id}">Delete</button>
             </td>
         `
-        table.appendChild(row);
+        tableBody.appendChild(row);
     })
 
     attachActionListeners();
