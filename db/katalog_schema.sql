@@ -26,6 +26,7 @@ CREATE TABLE Book (
     ISBN VARCHAR(20) PRIMARY KEY,
     Title VARCHAR(255) NOT NULL,
     Category VARCHAR(100),
+    Author VARCHAR(255),
     Stock INT DEFAULT 0,
     OnLoan INT DEFAULT 0
     genre VARCHAR(50),
@@ -109,10 +110,10 @@ DELIMITER //
 
 -- Kitap Ekleme
 DROP PROCEDURE IF EXISTS AddBook //
-CREATE PROCEDURE AddBook(IN p_ISBN VARCHAR(20), IN p_Title VARCHAR(255), IN p_Category VARCHAR(100))
+CREATE PROCEDURE AddBook(IN p_ISBN VARCHAR(20), IN p_Title VARCHAR(255), IN p_Genre VARCHAR(100), IN p_Author VARCHAR(255))
 BEGIN
-    INSERT INTO Book (ISBN, Title, Category, Stock, OnLoan) 
-    VALUES (p_ISBN, p_Title, p_Category, 0, 0);
+    INSERT INTO Book (ISBN, Title, Genre, Author, Stock, OnLoan) 
+    VALUES (p_ISBN, p_Title, p_Genre, p_Author, 0, 0);
 END //
 
 -- Kitap Silme
@@ -124,9 +125,9 @@ END //
 
 -- Kitap Güncelleme
 DROP PROCEDURE IF EXISTS UpdateBook //
-CREATE PROCEDURE UpdateBook(IN p_ISBN VARCHAR(20), IN p_Title VARCHAR(255), IN p_Category VARCHAR(100))
+CREATE PROCEDURE UpdateBook(IN p_ISBN VARCHAR(20), IN p_Title VARCHAR(255), IN p_Genre VARCHAR(100), IN p_Author VARCHAR(255))
 BEGIN
-    UPDATE Book SET Title = p_Title, Category = p_Category WHERE ISBN = p_ISBN;
+    UPDATE Book SET Title = p_Title, Genre = p_Genre, Author = p_Author WHERE ISBN = p_ISBN;
 END //
 
 -- YAZAR İŞLEMLERİ
