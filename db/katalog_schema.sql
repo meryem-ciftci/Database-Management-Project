@@ -28,6 +28,8 @@ CREATE TABLE Book (
     Category VARCHAR(100),
     Stock INT DEFAULT 0,
     OnLoan INT DEFAULT 0
+    genre VARCHAR(50),
+    author VARCHAR(50)
 );
 
 -- Kitap ve Yazar Çoğa-Çok (Many-to-Many) İlişki Tablosu
