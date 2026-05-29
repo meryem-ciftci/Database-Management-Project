@@ -46,5 +46,6 @@ export class MemberService{
         const response = await fetch(`${LOCAL_URL}/${memberId}`, {
             method: 'DELETE'
         });
+        return await response.json();
     }
 }
