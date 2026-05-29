@@ -30,7 +30,7 @@ searchForm.addEventListener('submit', async function(event) {
     }
     let add = (titleInput.valuetrim().padEnd(30, " ")) + (categoryInput.value.trim().padEnd(50, " "));
     inner = inner + "<h4>" + add + "</h4>";
-    document.getElementById("id").innerHTML = inner;
+    document.getElementById("right").innerHTML = inner;
 
 });
 

@@ -1,10 +1,21 @@
 <html>
     <head>
-        <title>Circulation</title>
-
+        <title>Circulations</title>
+        <link rel="stylesheet" href="circulations.css">
     </head>
 
     <body>
+        <div class="outer container">
+        <form class="left container" id="searchForm">
+            <input class="memberId box" type="text" id="memberID" name="memberId" placeholder="Member ID" required>
+            <br>
+            <input class="loanID box" type="text" id="loanID" name="loanID" placeholder="Loan ID" required>
+            <br>
+            <input class="submit box" type="submit" value="Add Book ">
+        </form>
+        <div id ="right" class="right container"></div>
+        </div>
 
+        <script src="circulations.js"></script>
     </body>
 </html>
