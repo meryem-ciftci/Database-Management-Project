@@ -3,128 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Yönetimi - Yazar İşlemleri</title>
+    <title>Katalog Yönetimi</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        .form-group { margin-bottom: 15px; }
-        input[type="text"] { padding: 8px; width: 200px; }
-        button { padding: 8px 15px; cursor: pointer; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        
+        /* Sekme (Tab) Tasarımı */
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; color: #555; }
+        .tab-btn.active { color: #007bff; border-bottom: 3px solid #007bff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        input[type="text"], select { padding: 8px; width: 200px; border: 1px solid #ccc; border-radius: 4px; }
+        select[multiple] { height: 80px; width: 220px; }
+        button { padding: 8px 15px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background-color: #0056b3; }
+        button.btn-danger { background-color: #dc3545; }
+        button.btn-danger:hover { background-color: #bd2130; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #f4f4f4; }
+        .small-text { font-size: 12px; color: #666; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Yazar Yönetimi</h2>
-
-    <div class="form-group">
-        <input type="text" id="fname" placeholder="Yazarın Adı" required>
-        <input type="text" id="lname" placeholder="Yazarın Soyadı" required>
-        <button onclick="yazarEkle()">Yazar Ekle</button>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('yazar-section')">Yazar Yönetimi</button>
+        <button class="tab-btn" onclick="switchTab('kitap-section')">Kitap Yönetimi</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Yazar ID</th>
-                <th>Ad</th>
-                <th>Soyad</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody id="yazarTablosu">
-            </tbody>
-    </table>
+    <div id="yazar-section" class="tab-content active">
+        <h3>Yeni Yazar Ekle</h3>
+        <div class="form-group">
+            <input type="text" id="fname" placeholder="Yazarın Adı" required>
+            <input type="text" id="lname" placeholder="Yazarın Soyadı" required>
+            <button onclick="yazarEkle()">Yazar Ekle</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Yazar ID</th>
+                    <th>Ad</th>
+                    <th>Soyad</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody id="yazarTablosu"></tbody>
+        </table>
+    </div>
+
+    <div id="kitap-section" class="tab-content">
+        <h3>Yeni Kitap Ekle</h3>
+        <div class="form-group">
+            <input type="text" id="bookIsbn" placeholder="ISBN (Örn: 978...)" required>
+            <input type="text" id="bookTitle" placeholder="Kitap Adı" required>
+            <input type="text" id="bookCategory" placeholder="Kategori" required>
+            
+            <div>
+                <select id="bookAuthors" multiple required>
+                    </select>
+                <span class="small-text">* Birden fazla seçmek için Ctrl'ye basılı tutun.</span>
+            </div>
+            
+            <button onclick="kitapEkle()">Kitap Ekle</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Kitap Adı</th>
+                    <th>Kategori</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody id="kitapTablosu"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // Arka plan sunucusunun adresi (Dosyayı localhost'tan açtığımız için direkt böyle yazabiliriz)
-    const API_URL = '/api/authors'; 
+    const BASE_URL = 'http://localhost:3000/api';
 
-    // Sayfa yüklendiğinde yazarları getir
-    document.addEventListener('DOMContentLoaded', yazarlariGetir);
+    document.addEventListener('DOMContentLoaded', () => {
+        yazarlariGetir();
+        kitaplariGetir();
+    });
 
-    // 1. Veritabanından Yazarları Çekme (GET)
+    // Sekme Değiştirme Fonksiyonu
+    function switchTab(sectionId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(sectionId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // ==========================================
+    // YAZAR API İŞLEMLERİ
+    // ==========================================
     async function yazarlariGetir() {
         try {
-            const response = await fetch(API_URL);
-            
-            if (!response.ok) {
-                console.error("Sunucu Hatası:", await response.text());
-                return;
-            }
-
+            const response = await fetch(`${BASE_URL}/authors`);
             const yazarlar = await response.json();
+            
             const tablo = document.getElementById('yazarTablosu');
-            tablo.innerHTML = ''; // Tabloyu temizle
+            const selectDropdown = document.getElementById('bookAuthors');
+            
+            tablo.innerHTML = '';
+            selectDropdown.innerHTML = ''; // Kitap formundaki listeyi de temizle
 
             yazarlar.forEach(yazar => {
+                // Tabloyu doldur
                 tablo.innerHTML += `
                     <tr>
                         <td>${yazar.AuthorID}</td>
                         <td>${yazar.FName}</td>
                         <td>${yazar.LName}</td>
                         <td>
-                            <button onclick="yazarSil(${yazar.AuthorID})">Sil</button>
+                            <button class="btn-danger" onclick="yazarSil(${yazar.AuthorID})">Sil</button>
                         </td>
                     </tr>
                 `;
+                // Kitap ekleme formundaki çoklu seçimi doldur
+                selectDropdown.innerHTML += `<option value="${yazar.AuthorID}">${yazar.FName} ${yazar.LName}</option>`;
             });
         } catch (error) {
             console.error('Yazarlar yüklenirken hata:', error);
         }
     }
 
-    // 2. Yeni Yazar Ekleme (POST)
     async function yazarEkle() {
         const fname = document.getElementById('fname').value;
         const lname = document.getElementById('lname').value;
 
-        if (!fname || !lname) {
-            alert('Lütfen yazarın adını ve soyadını girin!');
-            return;
-        }
+        if (!fname || !lname) return alert('Lütfen tüm alanları doldurun!');
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${BASE_URL}/authors`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ fName: fname, lName: lname }) 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fName: fname, lName: lname }) // server.js'deki isimlendirmeye uygun (fName, lName)
             });
 
             if (response.ok) {
-                alert('Yazar başarıyla eklendi!');
                 document.getElementById('fname').value = '';
                 document.getElementById('lname').value = '';
-                yazarlariGetir(); // Tabloyu anında güncelle
-            } else {
-                const errorText = await response.text();
-                alert('Yazar eklenirken bir hata oluştu. Konsola bak.');
-                console.error("Backend Hatası:", errorText);
+                yazarlariGetir();
             }
         } catch (error) {
-            console.error('Bağlantı hatası:', error);
+            console.error('Yazar ekleme hatası:', error);
         }
     }
 
-    // 3. Yazar Silme (DELETE)
     async function yazarSil(id) {
         if(confirm('Bu yazarı silmek istediğinize emin misiniz?')) {
             try {
-                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                const response = await fetch(`${BASE_URL}/authors/${id}`, { method: 'DELETE' });
                 if(response.ok) {
-                    alert('Yazar başarıyla silindi.');
-                    yazarlariGetir(); // Tabloyu anında güncelle
+                    yazarlariGetir();
                 } else {
-                    console.error("Silme Hatası:", await response.text());
+                    alert('Yazar silinemedi. Bu yazara ait bir kitap tanımlı olabilir!');
                 }
             } catch (error) {
-                console.error('Bağlantı hatası:', error);
+                console.error('Yazar silme hatası:', error);
+            }
+        }
+    }
+
+    // ==========================================
+    // KİTAP API İŞLEMLERİ
+    // ==========================================
+    async function kitaplariGetir() {
+        try {
+            const response = await fetch(`${BASE_URL}/books`);
+            const kitaplar = await response.json();
+            
+            const tablo = document.getElementById('kitapTablosu');
+            tablo.innerHTML = '';
+
+            kitaplar.forEach(kitap => {
+                tablo.innerHTML += `
+                    <tr>
+                        <td>${kitap.ISBN}</td>
+                        <td>${kitap.Title}</td>
+                        <td>${kitap.Category}</td>
+                        <td>
+                            <button class="btn-danger" onclick="kitapSil('${kitap.ISBN}')">Sil</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error('Kitaplar yüklenirken hata:', error);
+        }
+    }
+
+    async function kitapEkle() {
+        const isbn = document.getElementById('bookIsbn').value;
+        const title = document.getElementById('bookTitle').value;
+        const category = document.getElementById('bookCategory').value;
+        const selectedAuthors = Array.from(document.getElementById('bookAuthors').selectedOptions).map(option => option.value);
+
+        if (!isbn || !title || !category || selectedAuthors.length === 0) {
+            return alert('Lütfen kitap bilgilerini doldurun ve en az bir yazar seçin!');
+        }
+
+        try {
+            // 1. Adım: Kitabı ana tabloya ekle
+            const bookResponse = await fetch(`${BASE_URL}/books`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isbn, title, category })
+            });
+
+            if (bookResponse.ok) {
+                // 2. Adım: Seçilen tüm yazarları bu kitaba ata (Döngü ile arka arkaya istek atıyoruz)
+                for (const authorId of selectedAuthors) {
+                    await fetch(`${BASE_URL}/books/${isbn}/authors`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ authorId: parseInt(authorId) })
+                    });
+                }
+
+                alert('Kitap ve yazar eşleşmeleri başarıyla kaydedildi!');
+                
+                // Formu temizle
+                document.getElementById('bookIsbn').value = '';
+                document.getElementById('bookTitle').value = '';
+                document.getElementById('bookCategory').value = '';
+                document.getElementById('bookAuthors').selectedIndex = -1;
+                
+                kitaplariGetir(); // Kitap listesini yenile
+            } else {
+                alert('Kitap eklenirken bir hata oluştu (ISBN benzersiz olmalıdır).');
+            }
+        } catch (error) {
+            console.error('Kitap ekleme hatası:', error);
+        }
+    }
+
+    async function kitapSil(isbn) {
+        if(confirm('Bu kitabı silmek istediğinize emin misiniz?')) {
+            try {
+                const response = await fetch(`${BASE_URL}/books/${isbn}`, { method: 'DELETE' });
+                if(response.ok) {
+                    kitaplariGetir();
+                }
+            } catch (error) {
+                console.error('Kitap silme hatası:', error);
             }
         }
     }
