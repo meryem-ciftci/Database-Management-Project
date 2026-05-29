@@ -52,8 +52,8 @@ CREATE TABLE Members(
         MailAddress VARCHAR(50) NOT NULL,
         Region VARCHAR(50),
         PostalCode VARCHAR(50),
-        ReadBooks INT,
-        BorrowedBooks INT
+        ReadBooks INT DEFAULT 0 NOT NULL,
+        BorrowedBooks INT DEFAULT 0 NOT NULL
 )
 
 CREATE TABLE Loan (

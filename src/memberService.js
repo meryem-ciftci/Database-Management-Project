@@ -25,7 +25,6 @@ export class MemberService{
 
     static async addMember(memberData){
         memberData.id=getMemberId();
-        memberData.readBooks=0;
         const response = await fetch(LOCAL_URL, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},

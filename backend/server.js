@@ -34,10 +34,10 @@ app.get('/api/members', async (req, res) => {
 });
 
 app.post('/api/members', async (req, res) => {
-  const {id, name, email, phone} = req.body;
+  const {id, fname, lname, email, phone, region, postalCode} = req.body;
   try {
-    const query = 'INSERT INTO members (id,name,email,phone,readBooks) VALUES (?,?,?,?)';
-    await pool.query(query, [id,name,email,phone]);
+    const query = 'INSERT INTO members (MemberID,FName,LName,PhoneNumber,MailAddress,Region,PostalCode,ReadBooks,BorrowedBooks) VALUES (?,?,?,?,?,?,?,?)';
+    await pool.query(query, [id,fname,lname,phone,email,region,postalCode]);
     res.json({success:true,message:"We did it"}); 
   } catch (err) {
     res.status(500).send("Ekleme hatası: " + err.message);
@@ -58,7 +58,7 @@ app.get('/api/books', async (req, res) => {
 app.post('/api/books', async (req, res) => {
   const {accessionNumber, title, author} = req.body;
   try {
-    const query = 'INSERT INTO books (accessionNumber, title, author) VALUES (?,?,?)';
+    const query = 'INSERT INTO books (ISBN,Title,Category,Stock,OnLoan) VALUES (?,?,?)';
     await pool.query(query, [accessionNumber, title, author]);
     res.json({success:true,message:"We did it"}); 
   } catch (err) {
@@ -80,7 +80,7 @@ app.get('/api/loans', async (req, res) => {
 app.post('/api/loans', async (req, res) => {
   const {loanId, memberId, accessionNumber} = req.body;
   try {
-    const query = 'INSERT INTO loans (loanId, memberId, accessionNumber) VALUES (?,?,?)';
+    const query = 'INSERT INTO loans (LoanID, AccessionNumber, BorrowDate, ReturnDate, YearOfPublication, Publisher, NumberOfPages,Stock,OnLoan,Total) VALUES (?,?,?,?,?,?,?,?,?,?)';
     await pool.query(query, [loanId, memberId, accessionNumber]);
     res.json({success:true,message:"We did it"}); 
   } catch (err) {
