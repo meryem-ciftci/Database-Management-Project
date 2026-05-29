@@ -5,29 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Katalog Yönetimi</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        
-        /* Sekme (Tab) Tasarımı */
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; color: #555; }
-        .tab-btn.active { color: #007bff; border-bottom: 3px solid #007bff; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        body {
+            background-color: #E8D8B6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
 
-        /* Form ve Tablo Tasarımı */
-        .form-group { margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        input[type="text"], input[type="number"], select { padding: 8px; width: 200px; border: 1px solid #ccc; border-radius: 4px; }
-        select[multiple] { height: 80px; width: 220px; }
-        button { padding: 8px 15px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; }
-        button:hover { background-color: #0056b3; }
-        button.btn-danger { background-color: #dc3545; }
-        button.btn-danger:hover { background-color: #bd2130; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .small-text { font-size: 12px; color: #666; display: block; }
+        /* Form ve Tabloları Toplayan Ana Panel Kartı */
+        .container {
+                max-width: 1000px;
+                margin: 40px auto;
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Başlık Stili */
+        h2 {
+            color: #4a3b2c;
+            border-bottom: 2px solid #F1B77B;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Sekme (Tab) Menüsü Tasarımı */
+        .nav-tabs {
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tabs .nav-link {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        /* Aktif Sekme Çizgisi - Main'in buton rengiyle uyumlu */
+        .nav-tabs .nav-link.active {
+            color: #333;
+            font-weight: bold;
+            border-bottom: 3px solid #F1B77B;
+        }
+
+/* Girdi Kutuları (Inputs) */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input[type="text"], select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 220px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, select:focus {
+    border-color: #F1B77B;
+    outline: none;
+}
+
+/* Standart Butonlar - Main'deki pastel turuncu/kahve tonu */
+button {
+    background-color: #F1B77B;
+    color: #333;
+    border: 1px solid #dca061;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #dca061;
+    transform: translateY(-1px);
+}
+
+/* Silme Butonları - Tasarımı bozmayan pastel kiremit rengi */
+button[onclick*="Sil"], .btn-danger {
+    background-color: #D96A6A;
+    color: white;
+    border: 1px solid #b85454;
+}
+
+button[onclick*="Sil"]:hover, .btn-danger:hover {
+    background-color: #c05858;
+}
+
+/* Tablo Tasarımı */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+    background-color: #f9f6f0;
+    color: #4a3b2c;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #fcfbfa;
+}
+        /* SEKME İÇERİKLERİNİ GİZLEME VE GÖSTERME (Sorunu çözen kısım) */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out; /* Sayfa değişirken yumuşak bir geçiş yapsın */
+}
+
+/* Yumuşak geçiş animasyonu */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
     </style>
 </head>
 <body>
