@@ -3,17 +3,17 @@ CREATE DATABASE IF NOT EXISTS LibraryDB;
 USE LibraryDB;
 
 -- GÜVENLİ SİLME HİYERARŞİSİ
--- Önce bağımlı (child) tablolar silinir
+-- Önce child tablolar silinir
 DROP TABLE IF EXISTS Loan;
 DROP TABLE IF EXISTS Copy;
 DROP TABLE IF EXISTS Book_Author;
--- Sonra ana (parent) tablolar silinir
+-- Sonra parent tablolar silinir
 DROP TABLE IF EXISTS Members;
 DROP TABLE IF EXISTS Book;
 DROP TABLE IF EXISTS Author;
 
--- Yazar (Author) Tablosu
--- Her varlığın benzersiz bir tanımlayıcısı olmalıdır kuralına göre AuthorID Primary Key yapıldı.
+-- Yazar Tablosu
+-- AuthorID Primary Key yapıldı.
 CREATE TABLE Author (
     AuthorID INT AUTO_INCREMENT PRIMARY KEY,
     FName VARCHAR(50) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE Book (
     OnLoan INT DEFAULT 0
 );
 
--- Kitap ve Yazar Çoğa-Çok (Many-to-Many) İlişki Tablosu
+-- Kitap ve Yazar Many-to-Many İlişki Tablosu
 -- Bir yazarın birden fazla kitabı ve bir kitabın birden fazla yazarı olabilir kuralını sağlar.
 CREATE TABLE Book_Author (
     ISBN VARCHAR(20),
@@ -103,7 +103,7 @@ DELIMITER ;
 
 DELIMITER //
 
--- KİTAP (BOOK) İŞLEMLERİ
+-- KİTAP İŞLEMLERİ
 
 -- Kitap Ekleme
 DROP PROCEDURE IF EXISTS AddBook //
@@ -150,7 +150,7 @@ BEGIN
     UPDATE Author SET FName = p_FName, LName = p_LName WHERE AuthorID = p_AuthorID;
 END //
 
--- Kitaba Yazar Atama (İş Mantığı)
+-- Kitaba Yazar Atama
 DROP PROCEDURE IF EXISTS AssignAuthorToBook //
 CREATE PROCEDURE AssignAuthorToBook(IN p_ISBN VARCHAR(20), IN p_AuthorID INT)
 BEGIN
@@ -177,7 +177,7 @@ END //
 
 DELIMITER ;
 
--- A virtual table that combines Books and Authors
+-- Table that combines Books and Authors
 DROP VIEW IF EXISTS BookDetailsView;
 
 CREATE VIEW BookDetailsView AS
