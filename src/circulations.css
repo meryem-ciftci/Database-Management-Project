@@ -64,7 +64,7 @@ body{
     transition: all 0.3s ease;
 }
 
-.title, .category{
+.memberID, .loanID{
     border: 2px solid #e2e8f0;
     background-color: #f8fafc;
     color: #334155;

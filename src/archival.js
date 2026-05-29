@@ -28,7 +28,7 @@ const titleInput = document.getElementById('title');
 const categoryInput = document.getElementById('category');
 
 let matchedResults = [];
-
+let inner = "";
 
 searchForm.addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -47,17 +47,9 @@ searchForm.addEventListener('submit', async function(event) {
     }
 
     else{
-        if (bookList.length===0){
-            await addNewBook("ISBN_100001",titleInput.value,categoryInput.value);
-        } else{
-            const lastISBN = bookList[bookList.lenght-1].ISBN;
-            const currentNumber = Number.parseInt(lastISBN.slice(5));
-            const ISBN = "ISBN_" + (currentNumber+1);
-            await addNewBook(ISBN, titleInput.value, categoryInput.value);  
-        }
+        const ISBN = ((bookList[bookList.length-1].ISBN).slice(0,5) + (Number.parseInt((bookList[bookList.length-1].ISBN.slice(5,21)))+1));
+        await serverFonksiyonlari.addNewBook(ISBN, titleInput.value, categoryInput.value);  
     }
-
-    booklist = await getAllBooks();
 });
 
 
