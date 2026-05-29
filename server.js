@@ -1,4 +1,6 @@
 
+require('dotenv').config();
+
 const express = require('express');
 const mysql = require('mysql2/promise');
 const path = require('path');
@@ -10,12 +12,12 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(pathjoin(__dirname,'src')));//????look again for the path
+app.use(express.static(path.join(__dirname,'src')));//????look again for the path
 
 const pool = mysql.createPool({
   host: 'localhost',       
   user: 'root',            
-  password: DB_PASSWORD,    
+  password: process.env.DB_PASSWORD,    
   database: 'LibraryDB', 
   waitForConnections:true,
   connectionLimit:15,

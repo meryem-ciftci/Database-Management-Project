@@ -54,7 +54,7 @@ CREATE TABLE Members(
         PostalCode VARCHAR(50),
         ReadBooks INT DEFAULT 0 NOT NULL,
         BorrowedBooks INT DEFAULT 0 NOT NULL
-)
+);
 
 CREATE TABLE Loan (
     LoanID VARCHAR(20) PRIMARY KEY,
