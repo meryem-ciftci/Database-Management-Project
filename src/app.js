@@ -7,11 +7,31 @@ const form = document.getElementById('form');
 const tableBody = document.getElementById('tableBody');
 const error = document.getElementById('error');
 
-async function render(){
-    tableBody.innerHTML = '';
-    const members = MemberService.getMembers();
+async function init(){
+    try{
+        const initialMembers = await MemberService.getMembers();
+        await render(initialMembers);
+    } catch (err){
+        console.error("errorinit:",err);
+    }
+}
 
-    members.forEach(member => {
+async function render(incomingData){
+
+    let memberList = [];
+
+    if (Array.isArray(incomingData)){
+        memberList = incomingData;
+    } else if (incomingData && Array.isArray(incomingData.data)) {
+        memberList = incomingData;
+    } else if (incomingData) {
+        memberList = [incomingData];
+    }
+
+
+    tableBody.innerHTML = '';
+
+    memberList.forEach(member => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${member.FName}</td>
@@ -35,7 +55,7 @@ async function render(){
 
 form.addEventListener('submit', async (e)=> {
     e.preventDefault();
-    error.textContent='';
+    if (error) error.textContent='';
 
     const fname = document.getElementById('fname').value;
     const email = document.getElementById('email').value;
@@ -49,13 +69,22 @@ form.addEventListener('submit', async (e)=> {
     if (!Validator.isValidEmail(email)) {return;};
     if (!Validator.isValidPhone(phone)) {return;};
 
-    await MemberService.addMember({fname, lname, email, phone, region, postalCode});
-    form.reset();
-    render();
+    try {
+        const response = await MemberService.addMember({fname, lname, email, phone, region, postalCode});
+
+        if(response){
+            form.reset;
+            const allMembers = await MemberService.getMembers();
+            await render(allMembers);
+        }
+    } catch(err){
+        console.error("arayüz...",err);
+    }
+
 });
 
 function attachActionListeners(){
-    document.querySelectorAll('btn-update').forEach(btn=> {
+    document.querySelectorAll('.btn-update').forEach(btn=> {
         btn.addEventListener('click', async (e)=> {
             const id = e.target.getAttribute('data-id');
             const members = await MemberService.getMembers();
@@ -70,16 +99,27 @@ function attachActionListeners(){
 
             if (updatedFName && updatedLName && Validator.isValidEmail(updatedEmail) && Validator.isValidPhone(updatedPhone)){
                 await MemberService.updateMember(id, {fname:updatedFName,lname:updatedLName,email:updatedEmail,phone:updatedPhone,region:updatedRegion,postalCode:updatedPostal});
-                 render();
+
+                const allMembers = await MemberService.getMembers();
+                await render(allMembers);
             }
 
-            document.querySelectorAll('btn-delete').forEach(btn=>{
+            
+        })
+    })
+
+    document.querySelectorAll('.btn-delete').forEach(btn=>{
                 btn.addEventListener('click', async (e) => {
                     const id = e.target.getAttribute('data-id');
                     await MemberService.deleteMember(id);
+
+                    const allMembers = await MemberService.getMembers();
+                    await render(allMembers);
                 })
             })
-        })
-    })
 }
 
+document.addEventListener('DOMContentLoaded', async() => {
+    const initialMembers = await MemberService.getMembers();
+    render(initialMembers);
+})

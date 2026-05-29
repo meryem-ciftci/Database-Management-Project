@@ -38,13 +38,43 @@ app.get('/api/members', async (req, res) => {
 app.post('/api/members', async (req, res) => {
   const {id, fname, lname, email, phone, region, postalCode} = req.body;
   try {
-    const query = 'INSERT INTO members (MemberID,FName,LName,PhoneNumber,MailAddress,Region,PostalCode,ReadBooks,BorrowedBooks) VALUES (?,?,?,?,?,?,?,?)';
+    const query = 'INSERT INTO members (MemberID,FName,LName,PhoneNumber,MailAddress,Region,PostalCode) VALUES (?,?,?,?,?,?,?)';
     await pool.query(query, [id,fname,lname,phone,email,region,postalCode]);
     res.json({success:true,message:"We did it"}); 
   } catch (err) {
+    console.log("hata:",err);
     res.status(500).send("Ekleme hatası: " + err.message);
   }
 });
+
+app.put('/api/members/:id', async (req, res) => {
+  const {id} = req.params;
+  const { fname, lname, email, phone, region, postalCode} = req.body;
+  try {
+    const query = 'UPDATE members SET FName = ?, LName = ?, PhoneNumber = ?, MailAddress = ?, Region = ?, PostalCode = ? WHERE MemberID = ?';
+    await pool.query(query, [fname,lname,phone,email,region,postalCode, id]);
+    res.json({success:true,message:"We did it"}); 
+  } catch (err) {
+    console.log("güncelleme hatası:",err);
+    res.status(500).send("Ekleme hatası: " + err.message);
+  }
+});
+
+app.delete('/api/members/:id',async (req, res) => {
+  const {id} = req.params;
+  try{
+    const query = 'DELETE FROM members WHERE MemberID = ?';
+    const [result] = await pool.query(query,[id]);
+    
+    if (result.affectedRows === 0){
+      return res.status(404).json({succes:false,message:"üye bulunamadı"});
+    }
+    res.json({success:true,message:"we erased it!!!"});
+  }catch (err){
+    console.log("silme hatası...",err);
+    res.status(500).send("silme hatası:"+err.message)
+  }
+})
 
 //book
 
