@@ -61,6 +61,3 @@ async function importData() {
         console.error('An error occurred:', error);
     }
 }
-
-// Run the function
-importData();
