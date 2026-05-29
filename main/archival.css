@@ -1,0 +1,25 @@
+body{
+    background-color:rgb(219, 198, 146);
+    height: auto;
+}
+
+.outer{
+    display: flex;
+    height: 100%;
+}
+
+.left{
+    flex: 1;
+
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.right{
+    flex: 1;
+    background-color: aliceblue;
+}
+.box{
+    width: 175px;
+}
