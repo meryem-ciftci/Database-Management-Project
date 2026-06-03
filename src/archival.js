@@ -1,63 +1,34 @@
-const URL = "http://localhost:3000/api/books";
+const express = require('express');
+const router = express.Router();
 
-const searchForm = document.getElementById('searchForm');
-
-async function getAllBooks(){
-    const response = await fetch(URL);
-    return await response.json();
-}
-
-async function addNewBook(isbn,title,category){
-    await fetch(URL,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-            isbn: isbn,
-            title: title,
-            category: category
-        })
-    })
-}
-
-let bookList = [];
-document.addEventListener('DOMContentLoaded', async ()=>{
-    bookList = await getAllBooks();
+// Tarayıcıdan gelen GET isteğini (Kitap listesini) karşılayan API kapısı
+router.get('/books', async (req, res) => {
+    try {
+        const pool = req.app.get('db'); 
+        const [rows] = await pool.query('SELECT * FROM book'); 
+        res.json(rows); 
+    } catch (error) {
+        console.error("Veritabanı hatası:", error);
+        res.status(500).json({ error: "Veritabanından kitaplar çekilemedi." });
+    }
 });
 
-const titleInput = document.getElementById('title');
-const categoryInput = document.getElementById('category');
-
-let matchedResults = [];
-let inner = "";
-
-searchForm.addEventListener('submit', async function(event) {
-    event.preventDefault();
-    const searchedTitle = titleInput.value.trim().toLowerCase();
-    const searchedCategory = categoryInput.value.trim().toLowerCase();
-
-    matchedResults = bookList.filter(item => {
-        const matchTitle = item.Title ? item.Title.toLowerCase().includes(searchedTitle) : false;
-        const matchCategory = item.Category ? item.Category.toLowerCase().includes(searchedCategory) : false;
-        return matchTitle && matchCategory;
-    });
-
-    if (matchedResults.length != 0){
-        const ISBN = matchedResults[0].ISBN;
-        await addNewBook(ISBN, titleInput.value, categoryInput.value);  
+// Tarayıcıdan gelen POST isteğini (Yeni kitap eklemeyi) karşılayan API kapısı
+router.post('/books', async (req, res) => {
+    try {
+        const { isbn, title, category } = req.body;
+        const pool = req.app.get('db');
+        
+        await pool.query(
+            'INSERT INTO book (isbn, title, category) VALUES (?, ?, ?)', 
+            [isbn, title, category]
+        );
+        
+        res.status(201).json({ message: "Kitap başarıyla veritabanına eklendi." });
+    } catch (error) {
+        console.error("Veritabanına ekleme hatası:", error);
+        res.status(500).json({ error: "Kitap veritabanına kaydedilemedi." });
     }
-
-    else{
-        const ISBN = ((bookList[bookList.length-1].ISBN).slice(0,5) + (Number.parseInt((bookList[bookList.length-1].ISBN.slice(5,21)))+1));
-        await serverFonksiyonlari.addNewBook(ISBN, titleInput.value, categoryInput.value);  
-    }
-    // Listeyi güncelle (Senin kısmın)
-    bookList = await serverFonksiyonlari.getAllBooks();
-    
-    // Ekrana yazdır (Damla'nın kısmının hatasız hali)
-    let inner = document.getElementById("right").innerHTML || "";
-    let add = (titleInput.value.trim().padEnd(30, " ")) + (categoryInput.value.trim().padEnd(50, " "));
-    inner = inner + "<h4>" + add + "</h4>";
-    document.getElementById("right").innerHTML = inner;
 });
 
-
+module.exports = router;
