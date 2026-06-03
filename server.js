@@ -18,13 +18,15 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src'))); 
 
 const pool = mysql.createPool({
-  host: 'localhost',       
-  user: 'root',            
-  password: process.env.DB_PASSWORD,    
-  database: 'LibraryDB', 
-  waitForConnections: true,
-  connectionLimit: 15,
-  queueLimit: 0
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    waitForConnections: true,
+    connectionLimit: 15,
+    queueLimit: 0,
+    ssl: { rejectUnauthorized: false } // Ekranında "SSL mode: REQUIRED" yazdığı için bu satır kritik!
 });
 
 

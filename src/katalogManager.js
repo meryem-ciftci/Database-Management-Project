@@ -3,13 +3,15 @@ require('dotenv').config();
 
 // Veritabanı bağlantı havuzu oluşturuluyor
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'LibraryDB',
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
     waitForConnections: true,
     connectionLimit: 15,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: { rejectUnauthorized: false } // Ekranında "SSL mode: REQUIRED" yazdığı için bu satır kritik!
 });
 
 // YAZAR İŞLEMLERİ
